@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Khoj Authentication</title>
+</head>
+<body>
+    <h1>Debugging Khoj Authentication</h1>
+    <div id="debug-info"></div>
+    <button onclick="testAuth()">Test Authentication</button>
+    <button onclick="testMessage()">Test Send Message</button>
+    
+    <script>
+        async function testAuth() {
+            const debug = document.getElementById('debug-info');
+            debug.innerHTML = '<h3>Testing Authentication...</h3>';
+            
+            try {
+                // Test user endpoint
+                console.log('Fetching user data...');
+                const userResponse = await fetch('http://localhost:42110/api/v1/user');
+                console.log('User response status:', userResponse.status);
+                
+                if (!userResponse.ok) {
+                    throw new Error(`User API failed: ${userResponse.status}`);
+                }
+                
+                const userData = await userResponse.json();
+                console.log('User data:', userData);
+                
+                // Check if user data indicates logged in
+                const isLoggedIn = userData && userData.email && userData.is_active;
+                debug.innerHTML += `<p>✅ User API working</p>`;
+                debug.innerHTML += `<p>✅ User data: ${JSON.stringify(userData)}</p>`;
+                debug.innerHTML += `<p>✅ isLoggedIn would be: ${isLoggedIn}</p>`;
+                
+                // Test settings endpoint
+                const settingsResponse = await fetch('http://localhost:42110/api/settings');
+                const settingsData = await settingsResponse.json();
+                debug.innerHTML += `<p>✅ Settings working: anonymous_mode = ${settingsData.anonymous_mode}</p>`;
+                
+            } catch (error) {
+                console.error('Auth test failed:', error);
+                debug.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testMessage() {
+            const debug = document.getElementById('debug-info');
+            debug.innerHTML = '<h3>Testing Message Sending...</h3>';
+            
+            try {
+                const testMessage = "Hello, this is a test message from the debug page";
+                console.log('Sending message:', testMessage);
+                
+                const chatResponse = await fetch('http://localhost:42110/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        q: testMessage,
+                        stream: false
+                    })
+                });
+                
+                console.log('Chat response status:', chatResponse.status);
+                
+                if (!chatResponse.ok) {
+                    throw new Error(`Chat API failed: ${chatResponse.status}`);
+                }
+                
+                const chatData = await chatResponse.json();
+                console.log('Chat response:', chatData);
+                
+                debug.innerHTML += `<p>✅ Message sent successfully</p>`;
+                debug.innerHTML += `<p>✅ Response: ${chatData.response}</p>`;
+                
+            } catch (error) {
+                console.error('Message test failed:', error);
+                debug.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Test on page load
+        window.onload = function() {
+            console.log('Page loaded, testing authentication...');
+            testAuth();
+        };
+    </script>
+</body>
+</html>

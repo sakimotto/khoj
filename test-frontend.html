@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Frontend Connection</title>
+</head>
+<body>
+    <h1>Testing Khoj Frontend Connection</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testConnection() {
+            const results = document.getElementById('results');
+            
+            try {
+                // Test user endpoint
+                const userResponse = await fetch('http://localhost:42110/api/v1/user');
+                const userData = await userResponse.json();
+                results.innerHTML += '<p>✅ User API: ' + JSON.stringify(userData) + '</p>';
+                
+                // Test chat options
+                const optionsResponse = await fetch('http://localhost:42110/api/chat/options');
+                const optionsData = await optionsResponse.json();
+                results.innerHTML += '<p>✅ Chat Options: ' + JSON.stringify(optionsData) + '</p>';
+                
+                // Test chat sessions
+                const sessionsResponse = await fetch('http://localhost:42110/api/chat/sessions');
+                const sessionsData = await sessionsResponse.json();
+                results.innerHTML += '<p>✅ Chat Sessions: ' + JSON.stringify(sessionsData) + '</p>';
+                
+                // Test chat endpoint
+                const chatResponse = await fetch('http://localhost:42110/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        q: "Hello, this is a test message",
+                        stream: false
+                    })
+                });
+                const chatData = await chatResponse.json();
+                results.innerHTML += '<p>✅ Chat API: ' + JSON.stringify(chatData) + '</p>';
+                
+            } catch (error) {
+                results.innerHTML += '<p>❌ Error: ' + error.message + '</p>';
+            }
+        }
+        
+        testConnection();
+    </script>
+</body>
+</html>
