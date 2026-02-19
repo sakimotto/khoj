@@ -144,30 +144,6 @@ app.post('/api/chat/sessions', (req, res) => {
     });
 });
 
-// Mock content endpoints
-app.get('/api/content/computer', (req, res) => {
-    console.log('Computer content endpoint called');
-    res.json({
-        results: [],
-        total: 0
-    });
-});
-
-// Mock agents endpoints
-app.get('/api/agents/options', (req, res) => {
-    console.log('Agents options endpoint called');
-    res.json([
-        {
-            id: "default",
-            name: "Default Assistant",
-            slug: "default",
-            color: "orange",
-            icon: "🤖",
-            description: "General purpose AI assistant"
-        }
-    ]);
-});
-
 // Enhanced chat endpoint with proper streaming format for Khoj frontend
 app.post('/api/chat', async (req, res) => {
     const { q, stream, conversation_id } = req.body;
@@ -225,8 +201,7 @@ app.post('/api/chat', async (req, res) => {
                         const data = line.slice(6);
                         if (data === '[DONE]') {
                             // Send completion metadata
-                            const convId = conversation_id || "conv-" + Date.now();
-                            res.write(`{"type": "metadata", "data": {"conversationId": "${convId}", "turnId": "turn-${Date.now()}"}}\n`);
+                            res.write(`{"type": "metadata", "data": {"conversationId": "${conversation_id || "conv-" + Date.now()}", "turnId": "turn-${Date.now()}"}}\n`);
                             res.write(`{"type": "status", "data": "Completed"}\n`);
                         } else {
                             try {
